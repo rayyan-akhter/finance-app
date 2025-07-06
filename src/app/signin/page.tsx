@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, ArrowRight, TrendingUp } from 'lucide-react'
 import { validateEmail, auth, storage } from '@/lib/utils'
 import ThemeToggle from '@/components/ThemeToggle'
 
-export default function SignIn() {
+// Component that uses useSearchParams
+function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
@@ -274,5 +275,28 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading component for Suspense fallback
+function SignInLoading() {
+  return (
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    </div>
+  )
+}
+
+// Main component with Suspense wrapper
+export default function SignIn() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInForm />
+    </Suspense>
   )
 } 
