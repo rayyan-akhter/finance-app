@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth, storage } from '@/lib/utils'
+import { storage } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,13 @@ export async function POST(request: NextRequest) {
 
     // For now, check against localStorage (replace with database in production)
     const users = storage.get('users') || []
-    const user = users.find((u: any) => u.email === email && u.password === password)
+    const user = users.find((u: unknown) => {
+      if (typeof u === 'object' && u !== null && 'email' in u && 'password' in u) {
+        const userObj = u as { email: string; password: string }
+        return userObj.email === email && userObj.password === password
+      }
+      return false
+    })
 
     if (!user) {
       return NextResponse.json(

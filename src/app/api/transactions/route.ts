@@ -21,7 +21,15 @@ export async function GET(request: NextRequest) {
 
     // Apply pagination
     const paginatedTransactions = transactions
-      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a: unknown, b: unknown) => {
+        if (
+          typeof a === 'object' && a !== null && 'date' in a &&
+          typeof b === 'object' && b !== null && 'date' in b
+        ) {
+          return new Date((b as { date: string }).date).getTime() - new Date((a as { date: string }).date).getTime()
+        }
+        return 0
+      })
       .slice(offset, offset + limit)
 
     return NextResponse.json({
@@ -123,7 +131,12 @@ export async function PUT(request: NextRequest) {
 
     // Get existing transactions
     const transactions = storage.get(`transactions_${userId}`) || []
-    const transactionIndex = transactions.findIndex((t: any) => t.id === id)
+    const transactionIndex = transactions.findIndex((t: unknown) => {
+      if (typeof t === 'object' && t !== null && 'id' in t) {
+        return (t as { id: string }).id === id
+      }
+      return false
+    })
 
     if (transactionIndex === -1) {
       return NextResponse.json(
@@ -177,7 +190,12 @@ export async function DELETE(request: NextRequest) {
 
     // Get existing transactions
     const transactions = storage.get(`transactions_${userId}`) || []
-    const transactionIndex = transactions.findIndex((t: any) => t.id === id)
+    const transactionIndex = transactions.findIndex((t: unknown) => {
+      if (typeof t === 'object' && t !== null && 'id' in t) {
+        return (t as { id: string }).id === id
+      }
+      return false
+    })
 
     if (transactionIndex === -1) {
       return NextResponse.json(

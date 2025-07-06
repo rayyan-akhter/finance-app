@@ -74,7 +74,13 @@ export default function SignIn() {
     setTimeout(() => {
       // Check if user exists in localStorage (for demo purposes)
       const users = storage.get('users') || []
-      const user = users.find((u: any) => u.email === formData.email && u.password === formData.password)
+      const user = users.find((u: unknown) => {
+        if (typeof u === 'object' && u !== null && 'email' in u && 'password' in u) {
+          const userObj = u as { email: string; password: string }
+          return userObj.email === formData.email && userObj.password === formData.password
+        }
+        return false
+      })
       
       if (user) {
         auth.login({ email: user.email, name: user.name })
@@ -233,7 +239,7 @@ export default function SignIn() {
 
             <div className="text-center">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/signup" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
                   Sign up
                 </Link>

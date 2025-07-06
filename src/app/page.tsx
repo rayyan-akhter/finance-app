@@ -2,22 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  CreditCard, 
-  PiggyBank, 
-  BarChart3, 
-  Settings, 
-  LogOut, 
+import {
+  TrendingUp,
+  LogOut,
   User,
-  ArrowUpRight,
-  ArrowDownRight,
-  Eye,
-  EyeOff,
-  Plus,
-  MoreHorizontal,
   Building2,
   ShoppingCart,
   Car,
@@ -29,22 +17,20 @@ import {
   Users,
   Zap,
   Shield,
-  Clock
+  Clock,
+  DollarSign
 } from 'lucide-react'
-import { auth, formatCurrency, formatPercentage } from '@/lib/utils'
-import { config, isDemoMode, getDemoData } from '@/lib/config'
+import { auth } from '@/lib/utils'
+import { config, isDemoMode } from '@/lib/config'
 import DemoModeToggle from '@/components/DemoModeToggle'
 import DemoInstructions from '@/components/DemoInstructions'
 import ThemeToggle from '@/components/ThemeToggle'
 import AnimatedBackground from '@/components/AnimatedBackground'
 import ShimmerEffect from '@/components/ShimmerEffect'
-import { useTheme } from '@/lib/theme'
 
 export default function Home() {
   const router = useRouter()
-  const { isDark } = useTheme()
-  const [user, setUser] = useState<any>(null)
-  const [showBalance, setShowBalance] = useState(true)
+  const [user, setUser] = useState<unknown>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -143,13 +129,27 @@ export default function Home() {
     router.push('/signin')
   }
 
-  const handleApplyLoan = (loanType: any) => {
-    // In demo mode, show alert. In production, redirect to application form
+  const handleApplyLoan = (loanType: unknown) => {
     if (isDemoMode()) {
-      alert(`Demo: You would be redirected to apply for ${loanType.name}`)
+      if (
+        typeof loanType === 'object' &&
+        loanType !== null &&
+        'name' in loanType &&
+        typeof (loanType as { name?: unknown }).name === 'string'
+      ) {
+        alert(`Demo: You would be redirected to apply for ${(loanType as { name: string }).name}`)
+      } else {
+        alert('Demo: You would be redirected to apply for a loan')
+      }
     } else {
-      // Redirect to loan application form
-      router.push(`/apply-loan/${loanType.id}`)
+      if (
+        typeof loanType === 'object' &&
+        loanType !== null &&
+        'id' in loanType &&
+        typeof (loanType as { id?: unknown }).id === 'number'
+      ) {
+        router.push(`/apply-loan/${(loanType as { id: number }).id}`)
+      }
     }
   }
 
@@ -187,7 +187,11 @@ export default function Home() {
                 <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center transition-colors duration-300">
                   <User className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600 dark:text-gray-300" />
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">{user?.name}</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                  {typeof user === 'object' && user !== null && 'name' in user && typeof (user as { name?: unknown }).name === 'string' 
+                    ? (user as { name: string }).name 
+                    : 'User'}
+                </span>
               </div>
               <button 
                 onClick={handleLogout}

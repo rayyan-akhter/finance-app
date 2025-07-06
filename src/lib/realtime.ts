@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast'
 
 export interface RealtimeEvent {
   type: 'transaction' | 'balance' | 'notification' | 'market_update'
-  data: any
+  data: unknown
   timestamp: string
 }
 
@@ -18,7 +18,7 @@ export interface RealtimeConfig {
 class RealtimeService {
   private socket: Socket | null = null
   private isConnected = false
-  private eventListeners: Map<string, Function[]> = new Map()
+  private eventListeners: Map<string, Array<(...args: unknown[]) => unknown>> = new Map()
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
 
@@ -115,14 +115,14 @@ class RealtimeService {
     }
   }
 
-  on(event: string, callback: Function): void {
+  on(event: string, callback: (...args: unknown[]) => unknown): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, [])
     }
     this.eventListeners.get(event)?.push(callback)
   }
 
-  off(event: string, callback?: Function): void {
+  off(event: string, callback?: (...args: unknown[]) => unknown): void {
     if (!callback) {
       this.eventListeners.delete(event)
     } else {
@@ -136,7 +136,7 @@ class RealtimeService {
     }
   }
 
-  private emitLocal(event: string, data: any): void {
+  private emitLocal(event: string, data: unknown): void {
     const listeners = this.eventListeners.get(event)
     if (listeners) {
       listeners.forEach(callback => {
@@ -149,7 +149,7 @@ class RealtimeService {
     }
   }
 
-  emit(event: string, data: any): void {
+  emit(event: string, data: unknown): void {
     if (this.socket && this.isConnected) {
       this.socket.emit(event, data)
     } else {
@@ -162,29 +162,29 @@ class RealtimeService {
   }
 
   // Convenience methods for common events
-  onTransactionUpdate(callback: (data: any) => void): void {
+  onTransactionUpdate(callback: (data: unknown) => void): void {
     this.on('transaction_update', callback)
   }
 
-  onBalanceUpdate(callback: (data: any) => void): void {
+  onBalanceUpdate(callback: (data: unknown) => void): void {
     this.on('balance_update', callback)
   }
 
-  onNotification(callback: (data: any) => void): void {
+  onNotification(callback: (data: unknown) => void): void {
     this.on('notification', callback)
   }
 
-  onMarketUpdate(callback: (data: any) => void): void {
+  onMarketUpdate(callback: (data: unknown) => void): void {
     this.on('market_update', callback)
   }
 
   // Send transaction
-  sendTransaction(transaction: any): void {
+  sendTransaction(transaction: unknown): void {
     this.emit('new_transaction', transaction)
   }
 
   // Update balance
-  updateBalance(balance: any): void {
+  updateBalance(balance: unknown): void {
     this.emit('update_balance', balance)
   }
 

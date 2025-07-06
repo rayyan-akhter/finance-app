@@ -102,7 +102,13 @@ export default function SignUp() {
     setTimeout(() => {
       // Check if email already exists
       const users = storage.get('users') || []
-      const existingUser = users.find((u: any) => u.email === formData.email)
+      const existingUser = users.find((u: unknown) => {
+        if (typeof u === 'object' && u !== null && 'email' in u) {
+          const userObj = u as { email: string }
+          return userObj.email === formData.email
+        }
+        return false
+      })
       
       if (existingUser) {
         setErrors({ email: 'Email already registered' })

@@ -40,7 +40,13 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists
     const users = storage.get('users') || []
-    const existingUser = users.find((u: any) => u.email === email)
+    const existingUser = users.find((u: unknown) => {
+      if (typeof u === 'object' && u !== null && 'email' in u) {
+        const userObj = u as { email: string }
+        return userObj.email === email
+      }
+      return false
+    })
 
     if (existingUser) {
       return NextResponse.json(

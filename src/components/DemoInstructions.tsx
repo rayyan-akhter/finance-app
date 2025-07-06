@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Info, X, CheckCircle, Zap, Database, Users } from 'lucide-react'
+import { Info, X, CheckCircle, Zap, Database } from 'lucide-react'
 
 export default function DemoInstructions() {
   const [isVisible, setIsVisible] = useState(true)
@@ -37,7 +37,7 @@ export default function DemoInstructions() {
             </div>
 
             <div className="mt-2 sm:mt-3 text-xs text-blue-600">
-              <strong>Try it out:</strong> Create an account, explore loan types, and click "Apply Now" to see the demo flow!
+              <strong>Try it out:</strong> Create an account, explore loan types, and click &quot;Apply Now&quot; to see the demo flow!
             </div>
           </div>
         </div>
